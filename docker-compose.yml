@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: .
+    container_name: voice-bot-backend
+    restart: unless-stopped
+    ports:
+      - "8557:8557"
+    env_file:
+      - .env
+    # We use host 0.0.0.0 so it's reachable from the frontend container
+    command: uvicorn main:app --host 0.0.0.0 --port 8557
+
+  frontend:
+    build: ./frontend
+    container_name: voice-bot-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    # Environment variables for build stage can be passed here if needed,
+    # but for Nginx serving, the build happened inside the Dockerfile Stage 1.
