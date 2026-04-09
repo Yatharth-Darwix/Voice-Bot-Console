@@ -38,6 +38,8 @@ async def stream_prompt_generation(
     guardrails: str,
     agent_name: str,
     agent_gender: str,
+    customer_name: str,
+    customer_gender: str,
 ) -> AsyncGenerator[str, None]:
     """
     Connects to OpenAI Realtime WebSocket, streams system prompt tokens
@@ -88,6 +90,8 @@ async def stream_prompt_generation(
                 guardrails=guardrails,
                 agent_name=agent_name,
                 agent_gender=agent_gender,
+                customer_name=customer_name,
+                customer_gender=customer_gender,
             )
 
             await ws.send(json.dumps({
@@ -128,6 +132,8 @@ async def stream_prompt_generation(
                         persona=persona,
                         agent_name=agent_name,
                         agent_gender=agent_gender,
+                        customer_name=customer_name,
+                        customer_gender=customer_gender,
                     )}],
                 },
             }))

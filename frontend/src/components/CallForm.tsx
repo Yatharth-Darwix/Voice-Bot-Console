@@ -103,6 +103,8 @@ const initialValues: CallFormValues = {
   phone_number: '+918435527927',
   agent_name: 'Aisha',
   voice_gender: 'female',
+  customer_name: 'Customer',
+  customer_gender: 'male',
 }
 
 export function CallForm({
@@ -253,6 +255,30 @@ export function CallForm({
           >
             <option value="female">Female</option>
             <option value="male">Male</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Customer Name</span>
+          <input
+            required
+            minLength={1}
+            maxLength={50}
+            value={values.customer_name}
+            onChange={(e) => update('customer_name', e.target.value)}
+            placeholder="Priya"
+          />
+        </label>
+
+        <label>
+          <span>Customer Gender</span>
+          <select
+            required
+            value={values.customer_gender}
+            onChange={(e) => update('customer_gender', e.target.value as 'male' | 'female')}
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
           </select>
         </label>
       </div>

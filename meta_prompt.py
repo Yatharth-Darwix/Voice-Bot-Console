@@ -6,6 +6,8 @@ def build_meta_prompt(
     guardrails: str,
     agent_name: str,
     agent_gender: str,
+    customer_name: str,
+    customer_gender: str,
 ) -> str:
     return f"""Generate a complete system prompt for an AI outbound voice agent.
 
@@ -23,6 +25,7 @@ Write who the agent is. The agent's name is {agent_name} and the agent's gender 
 
 CONTEXT:
 Industry knowledge. What the company does. Why this call is happening today.
+You are calling {customer_name}, who is {customer_gender}. Always address them by their name respectfully. Ensure all your speech (especially verb endings in Hindi/Hinglish) reflects the customer's gender correctly.
 
 CALL SCRIPT:
 Stage 1 Greeting: The exact opening line. Warm, confident, no filler words.
@@ -70,6 +73,8 @@ def build_greeting_prompt(
     persona: str,
     agent_name: str,
     agent_gender: str,
+    customer_name: str,
+    customer_gender: str,
 ) -> str:
     return f"""Generate the first spoken sentence for this voice agent.
 
@@ -78,6 +83,8 @@ Use Case: {use_case}
 Persona: {persona}
 Agent Name: {agent_name}
 Agent Gender: {agent_gender}
+Customer Name: {customer_name}
+Customer Gender: {customer_gender}
 
 Rules:
 - Exactly one to two sentences

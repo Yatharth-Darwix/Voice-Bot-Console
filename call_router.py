@@ -66,6 +66,8 @@ class PromptGenerationRequest(BaseModel):
     guardrails: str = Field(..., min_length=5, max_length=500, description="Rules the agent must follow")
     agent_name: str = Field(default="Aisha", min_length=1, max_length=50, description="Name of the AI agent")
     voice_gender: str = Field(default="female", description="Gender of the voice agent (male/female)")
+    customer_name: str = Field(default="Customer", min_length=1, max_length=50, description="Name of the customer")
+    customer_gender: str = Field(default="male", description="Gender of the customer (male/female)")
 
     @field_validator("industry", "company", "use_case", "persona", "guardrails")
     @classmethod
@@ -876,6 +878,8 @@ async def _pipeline_stream(body: InitiateCallRequest, session_id: str) -> AsyncG
             guardrails=body.guardrails,
             agent_name=body.agent_name,
             agent_gender=body.voice_gender,
+            customer_name=body.customer_name,
+            customer_gender=body.customer_gender,
         ):
             if chunk.startswith("data: "):
                 try:

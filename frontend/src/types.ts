@@ -7,6 +7,8 @@ export interface CallFormValues {
   phone_number: string
   agent_name: string
   voice_gender: 'male' | 'female'
+  customer_name: string
+  customer_gender: 'male' | 'female'
 }
 
 export type InteractionMode = 'phone' | 'browser'
