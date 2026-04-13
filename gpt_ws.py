@@ -7,7 +7,8 @@ import asyncio
 import json
 import logging
 import socket
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 
 import websockets
 from websockets.exceptions import ConnectionClosed, WebSocketException
@@ -161,7 +162,7 @@ async def stream_prompt_generation(
             'first_message': first_message,
         })}\n\n"
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.error("GPT WebSocket timed out after %ds", PROMPT_TIMEOUT_SECONDS)
         yield f"data: {json.dumps({'error': 'OpenAI Realtime timed out. Check internet/DNS and retry.'})}\n\n"
 
@@ -192,7 +193,7 @@ async def _wait_for_event(
     while True:
         remaining = deadline - loop.time()
         if remaining <= 0:
-            raise asyncio.TimeoutError(f"Timed out waiting for event: {event_type}")
+            raise TimeoutError(f"Timed out waiting for event: {event_type}")
 
         raw_msg = await asyncio.wait_for(ws.recv(), timeout=remaining)
         event = json.loads(raw_msg)
@@ -220,7 +221,7 @@ async def _stream_response(
     while True:
         remaining = deadline - loop.time()
         if remaining <= 0:
-            raise asyncio.TimeoutError("Timed out waiting for Realtime response")
+            raise TimeoutError("Timed out waiting for Realtime response")
 
         raw_msg = await asyncio.wait_for(ws.recv(), timeout=remaining)
         event = json.loads(raw_msg)
@@ -257,7 +258,7 @@ async def _stream_response(
             )
 
         if not saw_delta and loop.time() > first_token_deadline:
-            raise asyncio.TimeoutError(
+            raise TimeoutError(
                 "No token received from OpenAI Realtime. Possible network or DNS issue."
             )
 
