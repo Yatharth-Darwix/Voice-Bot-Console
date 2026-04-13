@@ -28,6 +28,12 @@ Fill `.env`:
 
 ```bash
 source .venv/bin/activate
+uvicorn app.main:app --reload --port 8557
+```
+
+Backward-compatible entrypoint still works:
+
+```bash
 uvicorn main:app --reload --port 8557
 ```
 
@@ -156,3 +162,24 @@ Server route processes Vapi `tool-calls` events and supports tool name `web_sear
   - `query` (string)
   - optional `max_results` (number)
 - Response is returned in Vapi `results` format (`toolCallId`, `result`/`error`).
+
+## 9) Developer quality checks
+
+Install dev tooling:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run checks:
+
+```bash
+ruff check .
+black --check .
+mypy .
+pytest
+```
+
+## 10) Architecture and backlog snapshot
+
+See `docs/ARCHITECTURE_BACKLOG.md` for the current module map and next recommended implementation backlog.
