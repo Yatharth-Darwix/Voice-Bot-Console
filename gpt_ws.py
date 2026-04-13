@@ -40,6 +40,8 @@ async def stream_prompt_generation(
     agent_gender: str,
     customer_name: str,
     customer_gender: str,
+    call_flow: str = "",
+    query_handling: str = "",
 ) -> AsyncGenerator[str, None]:
     """
     Connects to OpenAI Realtime WebSocket, streams system prompt tokens
@@ -77,7 +79,7 @@ async def stream_prompt_generation(
                         "Output ONLY the system prompt text. "
                         "No preamble. No explanation. No markdown. No code fences."
                     ),
-                    "max_output_tokens": 1500,
+                    "max_output_tokens": 2500,
                 },
             }))
 
@@ -92,6 +94,8 @@ async def stream_prompt_generation(
                 agent_gender=agent_gender,
                 customer_name=customer_name,
                 customer_gender=customer_gender,
+                call_flow=call_flow,
+                query_handling=query_handling,
             )
 
             await ws.send(json.dumps({

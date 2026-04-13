@@ -26,6 +26,7 @@ def build_assistant_overrides(
     system_prompt: str,
     first_message: str,
     voice_id: str | None = None,
+    speaking_speed: float = 1.0,
 ) -> dict[str, Any]:
     """Build dynamic assistant configuration shared by phone and browser flows."""
     language_enforcement = (
@@ -39,6 +40,12 @@ def build_assistant_overrides(
     return {
         "firstMessage": first_message,
         "firstMessageMode": "assistant-speaks-first",
+        "interruptionsEnabled": True,
+        "stopSpeakingPlan": {
+            "numWords": 0,
+            "voiceSeconds": 0,
+            "backoffSeconds": 0.1,
+        },
         "model": {
     "provider": "openai",
     "model": "gpt-5.4-mini", 
@@ -55,6 +62,7 @@ def build_assistant_overrides(
             "style": 0.1,
             "useSpeakerBoost": True,
             "optimizeStreamingLatency": 4,
+            "speed": round(max(0.7, min(1.3, speaking_speed)), 2),
         },
         "transcriber": {
             "provider": "deepgram",
@@ -81,6 +89,7 @@ async def create_outbound_call(
     system_prompt: str,
     first_message: str,
     voice_id: str | None = None,
+    speaking_speed: float = 1.0,
     metadata: dict[str, Any] | None = None,
 ) -> CallResult:
     """
@@ -98,6 +107,7 @@ async def create_outbound_call(
             system_prompt=system_prompt,
             first_message=first_message,
             voice_id=voice_id,
+            speaking_speed=speaking_speed,
         ),
     }
     if metadata:

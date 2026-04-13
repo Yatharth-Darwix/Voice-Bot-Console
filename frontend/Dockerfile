@@ -10,9 +10,14 @@ RUN npm install
 # Copy the rest of the frontend code
 COPY . .
 
-# Build the production application
-# We ensure VITE_API_BASE_URL is empty for relative paths in production
-ENV VITE_API_BASE_URL=""
+# Receive build-time env vars from docker-compose
+ARG VITE_VAPI_PUBLIC_KEY
+ARG VITE_API_BASE_URL=""
+
+# Expose them to Vite at build time
+ENV VITE_VAPI_PUBLIC_KEY=$VITE_VAPI_PUBLIC_KEY
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 RUN npm run build
 
 # Stage 2: Serve the application with Nginx

@@ -100,6 +100,9 @@ const initialValues: CallFormValues = {
   use_case: industryMapping[defaultIndustry][0],
   persona: 'Warm, direct, consultative voice agent who speaks clearly and confidently.',
   guardrails: 'Never claim fake discounts. End immediately if asked to stop. Stay truthful.',
+  call_flow: '',
+  query_handling: '',
+  speaking_speed: '1.0',
   phone_number: '+918435527927',
   agent_name: 'Aisha',
   voice_gender: 'female',
@@ -259,6 +262,21 @@ export function CallForm({
         </label>
 
         <label>
+          <span>Speaking Speed</span>
+          <select
+            required
+            value={values.speaking_speed}
+            onChange={(e) => update('speaking_speed', e.target.value)}
+          >
+            <option value="0.7">0.7 — Slow</option>
+            <option value="0.85">0.85 — Relaxed</option>
+            <option value="1.0">1.0 — Normal</option>
+            <option value="1.15">1.15 — Fast</option>
+            <option value="1.3">1.3 — Brisk</option>
+          </select>
+        </label>
+
+        <label>
           <span>Customer Name</span>
           <input
             required
@@ -302,11 +320,30 @@ export function CallForm({
           <textarea
             required
             minLength={5}
-            maxLength={500}
-            rows={4}
+            rows={10}
             value={values.guardrails}
             onChange={(e) => update('guardrails', e.target.value)}
             placeholder="Hard constraints the agent must follow"
+          />
+        </label>
+
+        <label>
+          <span>Call Flow / Instructions <em style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.85em' }}>(Optional)</em></span>
+          <textarea
+            rows={10}
+            value={values.call_flow}
+            onChange={(e) => update('call_flow', e.target.value)}
+            placeholder="Paste your full call script here. Stage 1: Greeting → Stage 2: Discovery → Stage 3: Value Prop → Stage 4: Close. If left empty, the AI will auto-generate a script."
+          />
+        </label>
+
+        <label>
+          <span>Query Handling <em style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.85em' }}>(Optional)</em></span>
+          <textarea
+            rows={6}
+            value={values.query_handling}
+            onChange={(e) => update('query_handling', e.target.value)}
+            placeholder={`Rules for specific customer queries. E.g:\n- If customer asks about interest rate → say 'Our rates start from 10.5% p.a.'\n- If customer asks about eligibility → ask for monthly income first`}
           />
         </label>
       </div>

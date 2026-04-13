@@ -63,13 +63,16 @@ class PromptGenerationRequest(BaseModel):
     company: str = Field(..., min_length=2, max_length=100, description="Company name")
     use_case: str = Field(..., min_length=2, max_length=100, description="Purpose of the call")
     persona: str = Field(..., min_length=5, max_length=300, description="Agent personality and tone")
-    guardrails: str = Field(..., min_length=5, max_length=500, description="Rules the agent must follow")
+    guardrails: str = Field(..., min_length=5, description="Rules the agent must follow")
+    call_flow: str = Field(default="", description="Optional full call script / instructions")
+    query_handling: str = Field(default="", description="Rules for handling specific customer queries")
+    speaking_speed: float = Field(default=1.0, ge=0.7, le=1.3, description="ElevenLabs TTS speed (0.7 slow – 1.3 brisk)")
     agent_name: str = Field(default="Aisha", min_length=1, max_length=50, description="Name of the AI agent")
     voice_gender: str = Field(default="female", description="Gender of the voice agent (male/female)")
     customer_name: str = Field(default="Customer", min_length=1, max_length=50, description="Name of the customer")
     customer_gender: str = Field(default="male", description="Gender of the customer (male/female)")
 
-    @field_validator("industry", "company", "use_case", "persona", "guardrails")
+    @field_validator("industry", "company", "use_case", "persona", "guardrails", "call_flow", "query_handling")
     @classmethod
     def sanitise_input(cls, v: str) -> str:
         # Strip characters that could cause prompt injection.
@@ -801,6 +804,12 @@ async def _collect_prompt_bundle(body: PromptGenerationRequest) -> tuple[str, st
         use_case=body.use_case,
         persona=body.persona,
         guardrails=body.guardrails,
+        agent_name=body.agent_name,
+        agent_gender=body.voice_gender,
+        customer_name=body.customer_name,
+        customer_gender=body.customer_gender,
+        call_flow=body.call_flow,
+        query_handling=body.query_handling,
     ):
         if not chunk.startswith("data: "):
             continue
@@ -880,6 +889,8 @@ async def _pipeline_stream(body: InitiateCallRequest, session_id: str) -> AsyncG
             agent_gender=body.voice_gender,
             customer_name=body.customer_name,
             customer_gender=body.customer_gender,
+            call_flow=body.call_flow,
+            query_handling=body.query_handling,
         ):
             if chunk.startswith("data: "):
                 try:
@@ -907,6 +918,7 @@ async def _pipeline_stream(body: InitiateCallRequest, session_id: str) -> AsyncG
             system_prompt=system_prompt,
             first_message=first_message,
             voice_id=_get_voice_id_for_gender(body.voice_gender),
+            speaking_speed=body.speaking_speed,
             metadata={"session_id": session_id},
         )
 
@@ -949,6 +961,7 @@ async def prepare_browser_bot(body: PrepareBrowserBotRequest, request: Request):
             system_prompt=system_prompt,
             first_message=first_message,
             voice_id=_get_voice_id_for_gender(body.voice_gender),
+            speaking_speed=body.speaking_speed,
         )
 
         session_store.attach_prompt(session.session_id, system_prompt, first_message)

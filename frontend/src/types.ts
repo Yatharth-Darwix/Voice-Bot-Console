@@ -4,6 +4,9 @@ export interface CallFormValues {
   use_case: string
   persona: string
   guardrails: string
+  call_flow: string
+  query_handling: string
+  speaking_speed: string
   phone_number: string
   agent_name: string
   voice_gender: 'male' | 'female'
