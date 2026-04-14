@@ -107,6 +107,7 @@ const initialValues: CallFormValues = {
   agent_name: 'Aisha',
   voice_gender: 'female',
   start_language: 'english',
+  call_direction: 'outbound',
   customer_name: 'Customer',
   customer_gender: 'male',
 }
@@ -181,6 +182,27 @@ export function CallForm({
           disabled={disableModeSwitch}
         >
           Talk In Browser
+        </button>
+      </div>
+
+      <div className="mode-switch" role="tablist" aria-label="Call direction">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={values.call_direction === 'outbound'}
+          className={`mode-btn ${values.call_direction === 'outbound' ? 'active' : ''}`}
+          onClick={() => update('call_direction', 'outbound')}
+        >
+          Outbound
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={values.call_direction === 'inbound'}
+          className={`mode-btn ${values.call_direction === 'inbound' ? 'active' : ''}`}
+          onClick={() => update('call_direction', 'inbound')}
+        >
+          Inbound
         </button>
       </div>
 

@@ -30,6 +30,10 @@ class PromptGenerationRequest(BaseModel):
         default="english",
         description="Language for the very first greeting only (english/hindi)",
     )
+    call_direction: str = Field(
+        default="outbound",
+        description="Whether the system prompt should be written for an inbound or outbound call",
+    )
     customer_name: str = Field(default="Customer", min_length=1, max_length=50, description="Name of the customer")
     customer_gender: str = Field(default="male", description="Gender of the customer (male/female)")
 
@@ -44,6 +48,14 @@ class PromptGenerationRequest(BaseModel):
         cleaned = value.strip().lower()
         if cleaned not in {"english", "hindi"}:
             raise ValueError("start_language must be english or hindi")
+        return cleaned
+
+    @field_validator("call_direction")
+    @classmethod
+    def validate_call_direction(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if cleaned not in {"inbound", "outbound"}:
+            raise ValueError("call_direction must be inbound or outbound")
         return cleaned
 
 

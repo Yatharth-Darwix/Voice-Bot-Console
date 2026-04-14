@@ -35,6 +35,7 @@ def build_meta_prompt(
     agent_name: str,
     agent_gender: str,
     start_language: str,
+    call_direction: str,
     customer_name: str,
     customer_gender: str,
     call_flow: str = "",
@@ -65,6 +66,7 @@ INPUTS:
 - Agent Persona: {persona}
 - Guardrails: {guardrails}
 - Start Language: {start_language}
+- Call Direction: {call_direction}
 
 {time_context_block}
 
@@ -78,6 +80,9 @@ Industry knowledge. What the company does. Why this call is happening today.
 You are calling {customer_name}, who is {customer_gender}. Always address them by their name respectfully. Ensure all your speech (especially verb endings in Hindi/Hinglish) reflects the customer's gender correctly.
 
 CALL SCRIPT:
+The call direction is {call_direction}. Write the script so it feels natural for that call type.
+If the call is inbound, the agent should sound like they are receiving and handling an incoming inquiry.
+If the call is outbound, the agent should sound like they are initiating the conversation.
 {call_script_section}
 
 GUARDRAILS:
@@ -131,6 +136,7 @@ def build_greeting_prompt(
     agent_name: str,
     agent_gender: str,
     start_language: str,
+    call_direction: str,
     customer_name: str,
     customer_gender: str,
 ) -> str:
@@ -144,6 +150,7 @@ Persona: {persona}
 Agent Name: {agent_name}
 Agent Gender: {agent_gender}
 Start Language: {start_language}
+Call Direction: {call_direction}
 Customer Name: {customer_name}
 Customer Gender: {customer_gender}
 
@@ -152,6 +159,7 @@ Customer Gender: {customer_gender}
 Rules:
 - Exactly one to two sentences
 - The first spoken line must be in {start_language} only
+- The greeting must fit an {call_direction} call naturally
 - State the agent name and company
 - Mention the reason for calling
 - End with an open question that engages the prospect immediately
