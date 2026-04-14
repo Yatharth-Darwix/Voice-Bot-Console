@@ -26,6 +26,10 @@ class PromptGenerationRequest(BaseModel):
     )
     agent_name: str = Field(default="Aisha", min_length=1, max_length=50, description="Name of the AI agent")
     voice_gender: str = Field(default="female", description="Gender of the voice agent (male/female)")
+    start_language: str = Field(
+        default="english",
+        description="Language for the very first greeting only (english/hindi)",
+    )
     customer_name: str = Field(default="Customer", min_length=1, max_length=50, description="Name of the customer")
     customer_gender: str = Field(default="male", description="Gender of the customer (male/female)")
 
@@ -33,6 +37,14 @@ class PromptGenerationRequest(BaseModel):
     @classmethod
     def sanitise_input(cls, value: str) -> str:
         return value.replace("```", "").replace("{{", "").replace("}}", "").strip()
+
+    @field_validator("start_language")
+    @classmethod
+    def validate_start_language(cls, value: str) -> str:
+        cleaned = value.strip().lower()
+        if cleaned not in {"english", "hindi"}:
+            raise ValueError("start_language must be english or hindi")
+        return cleaned
 
 
 class InitiateCallRequest(PromptGenerationRequest):

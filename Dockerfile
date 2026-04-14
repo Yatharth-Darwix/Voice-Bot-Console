@@ -2,8 +2,11 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+ENV TZ=Asia/Kolkata
+
 # Install system dependencies if any are needed
 RUN apt-get update && apt-get install -y \
+    tzdata \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 

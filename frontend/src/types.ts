@@ -10,6 +10,7 @@ export interface CallFormValues {
   phone_number: string
   agent_name: string
   voice_gender: 'male' | 'female'
+  start_language: 'english' | 'hindi'
   customer_name: string
   customer_gender: 'male' | 'female'
 }

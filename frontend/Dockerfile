@@ -3,6 +3,10 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+ENV TZ=Asia/Kolkata
+
+RUN apk add --no-cache tzdata
+
 # Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
@@ -22,6 +26,10 @@ RUN npm run build
 
 # Stage 2: Serve the application with Nginx
 FROM nginx:alpine
+
+ENV TZ=Asia/Kolkata
+
+RUN apk add --no-cache tzdata
 
 # Copy the build output to Nginx's default directory
 COPY --from=build /app/dist /usr/share/nginx/html

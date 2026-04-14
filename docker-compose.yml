@@ -7,6 +7,11 @@ services:
       - "8557:8557"
     env_file:
       - .env
+    environment:
+      TZ: Asia/Kolkata
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     # We use host 0.0.0.0 so it's reachable from the frontend container
     command: uvicorn main:app --host 0.0.0.0 --port 8557
 
@@ -22,3 +27,8 @@ services:
       - "8080:80"
     depends_on:
       - backend
+    environment:
+      TZ: Asia/Kolkata
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro

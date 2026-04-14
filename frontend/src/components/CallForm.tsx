@@ -106,6 +106,7 @@ const initialValues: CallFormValues = {
   phone_number: '+918435527927',
   agent_name: 'Aisha',
   voice_gender: 'female',
+  start_language: 'english',
   customer_name: 'Customer',
   customer_gender: 'male',
 }
@@ -258,6 +259,18 @@ export function CallForm({
           >
             <option value="female">Female</option>
             <option value="male">Male</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Start Language</span>
+          <select
+            required
+            value={values.start_language}
+            onChange={(e) => update('start_language', e.target.value as 'english' | 'hindi')}
+          >
+            <option value="english">English</option>
+            <option value="hindi">Hindi</option>
           </select>
         </label>
 

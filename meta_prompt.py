@@ -1,3 +1,31 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime
+
+
+def _build_time_context_block() -> str:
+    now_utc = datetime.now(UTC)
+    now_local = now_utc.astimezone()
+
+    utc_iso = now_utc.isoformat(timespec="seconds").replace("+00:00", "Z")
+    local_iso = now_local.isoformat(timespec="seconds")
+    local_zone_name = now_local.tzname() or "local"
+    weekday = now_local.strftime("%A")
+    local_date = now_local.strftime("%Y-%m-%d")
+    local_time = now_local.strftime("%H:%M:%S")
+
+    return (
+        "TIME CONTEXT:\n"
+        f"- Current UTC datetime (RFC3339): {utc_iso}\n"
+        f"- Current local datetime (RFC3339): {local_iso}\n"
+        f"- Current local date (YYYY-MM-DD): {local_date}\n"
+        f"- Current local time (24h HH:MM:SS): {local_time}\n"
+        f"- Local timezone label: {local_zone_name}\n"
+        f"- Local weekday: {weekday}\n"
+        "- Treat these values as authoritative for words like today, tomorrow, this week, business hours, and current time."
+    )
+
+
 def build_meta_prompt(
     industry: str,
     company: str,
@@ -6,11 +34,14 @@ def build_meta_prompt(
     guardrails: str,
     agent_name: str,
     agent_gender: str,
+    start_language: str,
     customer_name: str,
     customer_gender: str,
     call_flow: str = "",
     query_handling: str = "",
 ) -> str:
+    time_context_block = _build_time_context_block()
+
     call_script_section = (
         call_flow.strip()
         if call_flow.strip()
@@ -33,6 +64,9 @@ INPUTS:
 - Use Case: {use_case}
 - Agent Persona: {persona}
 - Guardrails: {guardrails}
+- Start Language: {start_language}
+
+{time_context_block}
 
 OUTPUT — include ALL sections in this exact order, no headers, no markdown:
 
@@ -71,7 +105,7 @@ If the customer interrupts you, immediately abandon your current point. Do not f
 LANGUAGE MODE:
 STRICT LANGUAGE LOCK — HIGHEST PRIORITY. This overrides all script wording, persona tone, and every other instruction.
 
-1. MIRROR THE USER: The greeting is in English. Every response after that must match the prospect's language exactly. If the user speaks Hindi or Hinglish, your ENTIRE response MUST be in Hindi/Hinglish.
+1. MIRROR THE USER: The first greeting must start in {start_language} only. Every response after that must match the prospect's language exactly. If the user speaks Hindi or Hinglish, your ENTIRE response MUST be in Hindi/Hinglish.
 2. NO MID-SENTENCE SWITCHES: Never mix English and Hindi in the same sentence or response. Do not use English filler words ("Okay", "So", "Well", "Sure", "Oh") when speaking Hindi.
 3. NEVER REVERT TO ENGLISH: If the user is speaking Hindi, do NOT switch to English in the middle of the conversation. Maintain the Hindi language lock strictly. You must not default to English just because the topic gets complex.
 
@@ -96,9 +130,12 @@ def build_greeting_prompt(
     persona: str,
     agent_name: str,
     agent_gender: str,
+    start_language: str,
     customer_name: str,
     customer_gender: str,
 ) -> str:
+    time_context_block = _build_time_context_block()
+
     return f"""Generate the first spoken sentence for this voice agent.
 
 Company: {company}
@@ -106,11 +143,15 @@ Use Case: {use_case}
 Persona: {persona}
 Agent Name: {agent_name}
 Agent Gender: {agent_gender}
+Start Language: {start_language}
 Customer Name: {customer_name}
 Customer Gender: {customer_gender}
 
+{time_context_block}
+
 Rules:
 - Exactly one to two sentences
+- The first spoken line must be in {start_language} only
 - State the agent name and company
 - Mention the reason for calling
 - End with an open question that engages the prospect immediately

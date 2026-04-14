@@ -4,6 +4,7 @@ Fires outbound calls with dynamically generated system prompts.
 """
 
 import logging
+from datetime import UTC, datetime
 from typing import Any, TypedDict
 
 import httpx
@@ -22,6 +23,27 @@ class CallResult(TypedDict):
     phone_number: str
 
 
+def _build_runtime_time_context() -> str:
+    now_utc = datetime.now(UTC)
+    now_local = now_utc.astimezone()
+
+    utc_iso = now_utc.isoformat(timespec="seconds").replace("+00:00", "Z")
+    local_iso = now_local.isoformat(timespec="seconds")
+    local_date = now_local.strftime("%Y-%m-%d")
+    local_time = now_local.strftime("%H:%M:%S")
+    local_zone_name = now_local.tzname() or "local"
+
+    return (
+        "TIME CONTEXT (CALL RUNTIME):\n"
+        f"- Current UTC datetime (RFC3339): {utc_iso}\n"
+        f"- Current local datetime (RFC3339): {local_iso}\n"
+        f"- Current local date (YYYY-MM-DD): {local_date}\n"
+        f"- Current local time (24h HH:MM:SS): {local_time}\n"
+        f"- Local timezone label: {local_zone_name}\n"
+        "- For any question about current time/date/today, answer using this context."
+    )
+
+
 def build_assistant_overrides(
     system_prompt: str,
     first_message: str,
@@ -35,7 +57,10 @@ def build_assistant_overrides(
         "If the customer switches language, switch immediately on the next turn. "
         "If unsure, ask once whether they prefer English or Hindi, then continue in that language."
     )
-    effective_system_prompt = f"{system_prompt.strip()}\n\n{language_enforcement}".strip()
+    runtime_time_context = _build_runtime_time_context()
+    effective_system_prompt = (
+        f"{system_prompt.strip()}\n\n{runtime_time_context}\n\n{language_enforcement}"
+    ).strip()
 
     return {
         "firstMessage": first_message,
