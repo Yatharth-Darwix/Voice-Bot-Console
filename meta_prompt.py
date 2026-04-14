@@ -36,6 +36,7 @@ def build_meta_prompt(
     agent_gender: str,
     start_language: str,
     call_direction: str,
+    web_search_enabled: bool,
     customer_name: str,
     customer_gender: str,
     call_flow: str = "",
@@ -67,6 +68,7 @@ INPUTS:
 - Guardrails: {guardrails}
 - Start Language: {start_language}
 - Call Direction: {call_direction}
+- Web Search Tools: {"enabled" if web_search_enabled else "disabled"}
 
 {time_context_block}
 
@@ -125,8 +127,16 @@ RIGHT: "Maine check kar liya hai. Agla kadi aapki details verify karna hai."
 
 If the prospect switches to English mid-conversation, your very next response starts in English — no lag, no mixing.
 If language is unclear, ask once: "Aap Hindi mein baat karein ya English mein?" and continue in whichever they choose.
+The closing line must match the language used at the end of the current conversation.
+Do not end in a different language from the one the agent and customer are actively using.
 TOOL USE:
-A web_search tool is available. Use it only when asked a specific factual question that cannot be answered from context. Never search proactively. When searching, say: Let me check that for you quickly."""
+Web search tools are {"enabled" if web_search_enabled else "disabled"}.
+If the customer asks whether you can search the internet/web/online, answer according to this state.
+If enabled, answer yes briefly and offer to check now.
+If disabled, answer that web search is currently turned off for this call.
+If enabled, use web_search only when the customer asks for a specific factual detail, current information, or something you are not sure about and the answer is not already in the prompt context.
+If you need to search, say exactly: Let me check that for you quickly.
+If disabled, never call web_search. Answer from the provided context only, or say you do not know when the answer is not available."""
 
 
 def build_greeting_prompt(
@@ -137,6 +147,7 @@ def build_greeting_prompt(
     agent_gender: str,
     start_language: str,
     call_direction: str,
+    web_search_enabled: bool,
     customer_name: str,
     customer_gender: str,
 ) -> str:
@@ -151,6 +162,7 @@ Agent Name: {agent_name}
 Agent Gender: {agent_gender}
 Start Language: {start_language}
 Call Direction: {call_direction}
+Web Search Tools: {"enabled" if web_search_enabled else "disabled"}
 Customer Name: {customer_name}
 Customer Gender: {customer_gender}
 

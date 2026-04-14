@@ -43,6 +43,7 @@ async def stream_prompt_generation(
     call_direction: str,
     customer_name: str,
     customer_gender: str,
+    web_search_enabled: bool = True,
     call_flow: str = "",
     query_handling: str = "",
 ) -> AsyncGenerator[str, None]:
@@ -97,6 +98,7 @@ async def stream_prompt_generation(
                 agent_gender=agent_gender,
                 start_language=start_language,
                 call_direction=call_direction,
+                web_search_enabled=web_search_enabled,
                 customer_name=customer_name,
                 customer_gender=customer_gender,
                 call_flow=call_flow,
@@ -143,6 +145,7 @@ async def stream_prompt_generation(
                         agent_gender=agent_gender,
                         start_language=start_language,
                         call_direction=call_direction,
+                        web_search_enabled=web_search_enabled,
                         customer_name=customer_name,
                         customer_gender=customer_gender,
                     )}],

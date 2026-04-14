@@ -12,6 +12,7 @@ export interface CallFormValues {
   voice_gender: 'male' | 'female'
   start_language: 'english' | 'hindi'
   call_direction: 'outbound' | 'inbound'
+  web_search_enabled: boolean
   customer_name: string
   customer_gender: 'male' | 'female'
 }

@@ -108,6 +108,7 @@ const initialValues: CallFormValues = {
   voice_gender: 'female',
   start_language: 'english',
   call_direction: 'outbound',
+  web_search_enabled: true,
   customer_name: 'Customer',
   customer_gender: 'male',
 }
@@ -132,7 +133,7 @@ export function CallForm({
   const [values, setValues] = useState<CallFormValues>(initialValues)
   const useCaseOptions = industryMapping[values.industry as IndustryKey] ?? []
 
-  const update = (field: keyof CallFormValues, value: string) => {
+  const update = (field: keyof CallFormValues, value: string | boolean) => {
     setValues((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -203,6 +204,27 @@ export function CallForm({
           onClick={() => update('call_direction', 'inbound')}
         >
           Inbound
+        </button>
+      </div>
+
+      <div className="mode-switch" role="tablist" aria-label="Web search tools">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={values.web_search_enabled}
+          className={`mode-btn ${values.web_search_enabled ? 'active' : ''}`}
+          onClick={() => update('web_search_enabled', true)}
+        >
+          Web Search On
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!values.web_search_enabled}
+          className={`mode-btn ${!values.web_search_enabled ? 'active' : ''}`}
+          onClick={() => update('web_search_enabled', false)}
+        >
+          Web Search Off
         </button>
       </div>
 

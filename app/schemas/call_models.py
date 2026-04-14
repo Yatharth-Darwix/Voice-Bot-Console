@@ -34,6 +34,10 @@ class PromptGenerationRequest(BaseModel):
         default="outbound",
         description="Whether the system prompt should be written for an inbound or outbound call",
     )
+    web_search_enabled: bool = Field(
+        default=True,
+        description="Whether the agent may use web search tools when it is uncertain or needs current facts",
+    )
     customer_name: str = Field(default="Customer", min_length=1, max_length=50, description="Name of the customer")
     customer_gender: str = Field(default="male", description="Gender of the customer (male/female)")
 
@@ -57,6 +61,19 @@ class PromptGenerationRequest(BaseModel):
         if cleaned not in {"inbound", "outbound"}:
             raise ValueError("call_direction must be inbound or outbound")
         return cleaned
+
+    @field_validator("web_search_enabled", mode="before")
+    @classmethod
+    def validate_web_search_enabled(cls, value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            cleaned = value.strip().lower()
+            if cleaned in {"true", "1", "yes", "on"}:
+                return True
+            if cleaned in {"false", "0", "no", "off"}:
+                return False
+        raise ValueError("web_search_enabled must be a boolean value")
 
 
 class InitiateCallRequest(PromptGenerationRequest):
