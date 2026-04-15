@@ -32,7 +32,7 @@ export function StatusPanel({
   return (
     <section className="panel status-panel">
       <div className="panel-head">
-        <h2>Pipeline Status</h2>
+        <h2>Control Plane Status</h2>
         <p>Backend: <code>{apiBaseUrl}</code></p>
         {sessionId ? (
           <p>
@@ -41,7 +41,7 @@ export function StatusPanel({
         ) : null}
         {onOpenLogs ? (
           <button type="button" className="btn ghost" onClick={onOpenLogs}>
-            Open Session Logs
+            Open Logbook
           </button>
         ) : null}
       </div>

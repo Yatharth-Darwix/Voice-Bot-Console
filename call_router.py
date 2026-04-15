@@ -19,6 +19,7 @@ from fastapi.responses import StreamingResponse
 from app.schemas import (
     AppendSessionEventRequest,
     BindCallRequest,
+    DirectAssistantCallRequest,
     ConfigureWebhookRequest,
     ConfigureWebhookResponse,
     InitiateCallRequest,
@@ -52,6 +53,7 @@ from app.utils.router_helpers import enforce_rate_limit, extract_call_id, get_vo
 from config import settings
 from session_store import session_store
 from vapi_service import (
+    create_direct_assistant_call,
     build_assistant_overrides,
     fetch_call_details,
     update_assistant_webhook,
@@ -236,6 +238,61 @@ async def prepare_browser_bot(body: PrepareBrowserBotRequest, request: Request):
     except RuntimeError as exc:
         session_store.set_status(session.session_id, "failed")
         logger.error("Prepare browser bot error: %s", exc)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/direct-assistant-call")
+async def direct_assistant_call(body: DirectAssistantCallRequest, request: Request):
+    """Trigger an existing assistant with optional prompt overrides from the local playground page."""
+    enforce_rate_limit(
+        request=request,
+        request_buckets=_REQUEST_BUCKETS,
+        window_seconds=RATE_LIMIT_WINDOW_SECONDS,
+        rate_limit_per_minute=settings.rate_limit_per_minute,
+    )
+
+    session = session_store.create(
+        mode="phone",
+        industry="Custom",
+        company="Local Playground",
+        use_case="Direct assistant call",
+        persona="Custom assistant override",
+        guardrails="Custom prompt",
+        status="dialing",
+    )
+
+    try:
+        assistant_id = (settings.vapi_assistant_id or "").strip()
+        if not assistant_id:
+            raise HTTPException(status_code=400, detail="Missing assistant id. Set VAPI_ASSISTANT_ID.")
+
+        system_prompt = body.system_prompt.strip()
+        first_message = body.first_message.strip()
+
+        if system_prompt or first_message:
+            session_store.attach_prompt(session.session_id, system_prompt, first_message)
+
+        call_result = await create_direct_assistant_call(
+            assistant_id=assistant_id,
+            phone_number=body.phone_number,
+            system_prompt=system_prompt,
+            first_message=first_message,
+            metadata={"session_id": session.session_id, "source": "local_playground"},
+        )
+
+        session_store.bind_call(session.session_id, call_result["call_id"])
+        session_store.set_status(session.session_id, "dialing")
+
+        return {
+            "session_id": session.session_id,
+            "call_id": call_result["call_id"],
+            "assistant_id": assistant_id,
+            "phone_number": call_result["phone_number"],
+            "status": call_result["status"],
+        }
+    except RuntimeError as exc:
+        session_store.set_status(session.session_id, "failed")
+        logger.error("Direct assistant call error: %s", exc)
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 

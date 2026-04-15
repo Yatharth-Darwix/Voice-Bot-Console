@@ -28,8 +28,8 @@ export function BrowserTalkPanel({
   return (
     <section className="panel stream-panel">
       <div className="panel-head">
-        <h2>Browser Talk Session</h2>
-        <p>Directly talk to the bot in this dashboard using your microphone.</p>
+        <h2>Live Voice Studio</h2>
+        <p>Speak with the assistant directly in-browser and monitor session health in realtime.</p>
       </div>
 
       <div className="browser-status-grid">

@@ -66,8 +66,8 @@ export function PromptStream({
   return (
     <section className="panel stream-panel">
       <div className="panel-head">
-        <h2>Realtime Prompt Stream</h2>
-        <p>Current phase: <strong>{phase}</strong></p>
+        <h2>Realtime Intelligence Stream</h2>
+        <p>Current orchestration phase: <strong>{phase}</strong></p>
       </div>
 
       <pre className="prompt-box" aria-live="polite">

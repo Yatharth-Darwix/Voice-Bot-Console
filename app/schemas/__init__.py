@@ -3,6 +3,7 @@
 from app.schemas.call_models import (
     AppendSessionEventRequest,
     BindCallRequest,
+    DirectAssistantCallRequest,
     ConfigureWebhookRequest,
     ConfigureWebhookResponse,
     InitiateCallRequest,
@@ -20,6 +21,7 @@ __all__ = [
     "InitiateCallRequest",
     "PrepareBrowserBotRequest",
     "PrepareBrowserBotResponse",
+    "DirectAssistantCallRequest",
     "BindCallRequest",
     "AppendSessionEventRequest",
     "ConfigureWebhookRequest",

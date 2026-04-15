@@ -20,6 +20,12 @@ router.add_api_route(
 )
 
 router.add_api_route(
+    "/direct-assistant-call",
+    call_router.direct_assistant_call,
+    methods=["POST"],
+)
+
+router.add_api_route(
     "/vapi/configure-webhook",
     call_router.configure_vapi_webhook,
     methods=["POST"],

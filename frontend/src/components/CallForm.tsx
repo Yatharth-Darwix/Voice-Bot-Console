@@ -159,11 +159,11 @@ export function CallForm({
   return (
     <form className="panel form-panel" onSubmit={handleSubmit}>
       <div className="panel-head">
-        <h2>Call Composer</h2>
-        <p>Define the agent, stream prompt generation, then place the outbound call.</p>
+        <h2>Interaction Architect</h2>
+        <p>Design the agent behavior, choose channel strategy, and execute production-ready voice interactions.</p>
       </div>
 
-      <div className="mode-switch" role="tablist" aria-label="Interaction mode">
+      <div className="mode-switch compact-switch" role="tablist" aria-label="Interaction mode">
         <button
           type="button"
           role="tab"
@@ -186,7 +186,7 @@ export function CallForm({
         </button>
       </div>
 
-      <div className="mode-switch" role="tablist" aria-label="Call direction">
+      <div className="mode-switch compact-switch" role="tablist" aria-label="Call direction">
         <button
           type="button"
           role="tab"
@@ -207,7 +207,7 @@ export function CallForm({
         </button>
       </div>
 
-      <div className="mode-switch" role="tablist" aria-label="Web search tools">
+      <div className="mode-switch compact-switch" role="tablist" aria-label="Web search tools">
         <button
           type="button"
           role="tab"
@@ -228,7 +228,7 @@ export function CallForm({
         </button>
       </div>
 
-      <div className="grid two-col">
+      <div className="grid dense-grid">
         <label>
           <span>Industry</span>
           <select
@@ -365,7 +365,7 @@ export function CallForm({
             required
             minLength={5}
             maxLength={300}
-            rows={4}
+            rows={2}
             value={values.persona}
             onChange={(e) => update('persona', e.target.value)}
             placeholder="Tone, style, and personality"
@@ -377,7 +377,7 @@ export function CallForm({
           <textarea
             required
             minLength={5}
-            rows={10}
+            rows={3}
             value={values.guardrails}
             onChange={(e) => update('guardrails', e.target.value)}
             placeholder="Hard constraints the agent must follow"
@@ -387,7 +387,7 @@ export function CallForm({
         <label>
           <span>Call Flow / Instructions <em style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.85em' }}>(Optional)</em></span>
           <textarea
-            rows={10}
+            rows={3}
             value={values.call_flow}
             onChange={(e) => update('call_flow', e.target.value)}
             placeholder="Paste your full call script here. Stage 1: Greeting → Stage 2: Discovery → Stage 3: Value Prop → Stage 4: Close. If left empty, the AI will auto-generate a script."
@@ -397,7 +397,7 @@ export function CallForm({
         <label>
           <span>Query Handling <em style={{ fontWeight: 400, opacity: 0.6, fontSize: '0.85em' }}>(Optional)</em></span>
           <textarea
-            rows={6}
+            rows={2}
             value={values.query_handling}
             onChange={(e) => update('query_handling', e.target.value)}
             placeholder={`Rules for specific customer queries. E.g:\n- If customer asks about interest rate → say 'Our rates start from 10.5% p.a.'\n- If customer asks about eligibility → ask for monthly income first`}

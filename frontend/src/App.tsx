@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BrowserTalkPanel } from './components/BrowserTalkPanel'
 import { CallForm } from './components/CallForm'
+import { DirectCallPage } from './components/DirectCallPage'
+import { MainDashboard } from './components/MainDashboard'
 import { PromptStream } from './components/PromptStream'
 import { SessionsDashboard } from './components/SessionsDashboard'
 import { StatusPanel } from './components/StatusPanel'
@@ -8,6 +10,10 @@ import { useBrowserTalk } from './hooks/useBrowserTalk'
 import { useCallPipeline } from './hooks/useCallPipeline'
 import { useSessionLogs } from './hooks/useSessionLogs'
 import type { InteractionMode } from './types'
+
+const LANDING_ALIASES = ['/', '/main', '/main/']
+const MISSION_CONTROL_ALIASES = ['/mission-control', '/mission-control/']
+const TRIGGER_LAB_ALIASES = ['/trigger-lab', '/trigger-lab/', '/playground', '/playground/']
 
 function App() {
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('phone')
@@ -117,6 +123,7 @@ function App() {
   const statusError = interactionMode === 'phone' ? error : browserError
   const statusTimeline = interactionMode === 'phone' ? timeline : browserTimeline
   const currentSessionId = interactionMode === 'phone' ? sessionId : browserSessionId
+  const modeLabel = interactionMode === 'phone' ? 'Phone Pipeline' : 'Browser Voice Studio'
 
   const canStartBrowser = useMemo(
     () => !browserConnected && !browserConnecting && !running,
@@ -153,26 +160,81 @@ function App() {
         error={logsError}
         onRefresh={refresh}
         onSelectSession={selectSession}
-        onBack={() => navigate('/')}
+        onBack={() => navigate('/mission-control')}
+        onOpenMain={() => navigate('/')}
       />
     )
   }
 
+  if (TRIGGER_LAB_ALIASES.includes(path)) {
+    return (
+      <DirectCallPage
+        buildApiUrl={buildApiUrl}
+        onBack={() => navigate('/mission-control')}
+        onOpenMain={() => navigate('/')}
+        onOpenMissionControl={() => navigate('/mission-control')}
+      />
+    )
+  }
+
+  if (LANDING_ALIASES.includes(path)) {
+    return <MainDashboard onOpenMissionControl={() => navigate('/mission-control')} onOpenTriggerLab={() => navigate('/trigger-lab')} />
+  }
+
+  if (!MISSION_CONTROL_ALIASES.includes(path)) {
+    return <MainDashboard onOpenMissionControl={() => navigate('/mission-control')} onOpenTriggerLab={() => navigate('/trigger-lab')} />
+  }
+
   return (
-    <div className="app-shell">
+    <div className="app-shell mission-shell">
       <header className="topbar">
         <div className="topbar-title">
-          <h1>VoiceForge Console</h1>
-          <p>Launch phone calls and browser voice sessions from one dashboard.</p>
+          <h1>Mission Control</h1>
+          <p>Run call operations, browser voice sessions, and realtime prompt orchestration from one command surface.</p>
         </div>
         <div className="topbar-actions">
+          <button type="button" className="btn ghost" onClick={() => navigate('/')}>
+            Home Hub
+          </button>
+          <button type="button" className="btn ghost" onClick={() => navigate('/trigger-lab')}>
+            Trigger Lab
+          </button>
           <button type="button" className="btn ghost" onClick={() => navigate('/sessions')}>
-            Open Logs Dashboard
+            Ops Logs
           </button>
         </div>
       </header>
 
-      <main className="content-grid">
+      <section className="panel mission-hero">
+        <div>
+          <p className="mission-kicker">Realtime Operations Surface</p>
+          <h2>Coordinate prompts, channels, and live session telemetry</h2>
+          <p>
+            Build and execute production-grade voice interactions with a single operator flow. Switch channel mode, monitor state,
+            and launch with confidence.
+          </p>
+        </div>
+        <div className="mission-meta-grid" aria-label="Mission telemetry">
+          <article>
+            <h3>Mode</h3>
+            <p>{modeLabel}</p>
+          </article>
+          <article>
+            <h3>System State</h3>
+            <p>{statusRunning ? 'Live' : 'Standby'}</p>
+          </article>
+          <article>
+            <h3>Current Session</h3>
+            <p>{currentSessionId ?? 'Not started'}</p>
+          </article>
+          <article>
+            <h3>Timeline Events</h3>
+            <p>{statusTimeline.length}</p>
+          </article>
+        </div>
+      </section>
+
+      <main className="mission-grid">
         <CallForm
           interactionMode={interactionMode}
           onInteractionModeChange={setInteractionMode}

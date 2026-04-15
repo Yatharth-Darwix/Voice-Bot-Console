@@ -92,6 +92,31 @@ class PrepareBrowserBotRequest(PromptGenerationRequest):
     """Request to generate a browser-session bot config."""
 
 
+class DirectAssistantCallRequest(BaseModel):
+    phone_number: str = Field(..., description="E.164 format phone number to dial")
+    system_prompt: str = Field(
+        default="",
+        description="Optional system prompt override; leave empty to keep the assistant config unchanged",
+    )
+    first_message: str = Field(
+        default="",
+        description="Optional first message override; leave empty to keep the assistant config unchanged",
+    )
+
+    @field_validator("phone_number")
+    @classmethod
+    def validate_phone_number(cls, value: str) -> str:
+        cleaned = value.replace(" ", "").replace("-", "")
+        if not PHONE_PATTERN.match(cleaned):
+            raise ValueError("Phone number must be in E.164 format, e.g. +919876543210")
+        return cleaned
+
+    @field_validator("system_prompt", "first_message")
+    @classmethod
+    def sanitise_text_override(cls, value: str) -> str:
+        return value.replace("```", "").strip()
+
+
 class PrepareBrowserBotResponse(BaseModel):
     session_id: str
     system_prompt: str

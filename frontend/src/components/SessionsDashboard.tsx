@@ -12,6 +12,7 @@ interface SessionsDashboardProps {
   onRefresh: () => Promise<void>
   onSelectSession: (sessionId: string) => Promise<void>
   onBack: () => void
+  onOpenMain?: () => void
 }
 
 function resolveRoleKind(role: string): 'assistant' | 'user' | 'event' {
@@ -64,6 +65,7 @@ export function SessionsDashboard({
   onRefresh,
   onSelectSession,
   onBack,
+  onOpenMain,
 }: SessionsDashboardProps) {
   const [filter, setFilter] = useState<'all' | 'transcript' | 'status' | 'tool'>('all')
   const filteredMessages = useMemo(() => {
@@ -88,21 +90,46 @@ export function SessionsDashboard({
     <div className="sessions-shell">
       <header className="topbar">
         <div className="topbar-title">
-          <h1>Session Logs</h1>
+          <h1>Operations Logbook</h1>
           <p>Backend: {apiBaseUrl}</p>
         </div>
       </header>
+
+      <section className="panel sessions-hero">
+        <div>
+          <p className="mission-kicker">Session Intelligence</p>
+          <h2>Track every call, transcript, and runtime event in one place</h2>
+          <p>
+            Review the operational history behind Mission Control and Trigger Lab with a lighter, more readable log experience.
+          </p>
+        </div>
+        <div className="sessions-hero-stats">
+          <article>
+            <span>Total Sessions</span>
+            <strong>{sessions.length}</strong>
+          </article>
+          <article>
+            <span>Selected Session</span>
+            <strong>{selectedSessionId ?? 'None'}</strong>
+          </article>
+        </div>
+      </section>
 
       <main className="sessions-grid">
         <section className="panel sessions-list-panel">
           <div className="panel-head sessions-head">
             <div>
-              <h2>Sessions</h2>
-              <p>Track browser and phone sessions by session id and call id.</p>
+              <h2>Session Timeline</h2>
+              <p>Browse phone and browser interactions by session id and call id.</p>
             </div>
             <div className="sessions-actions">
+              {onOpenMain ? (
+                <button type="button" className="btn ghost" onClick={onOpenMain}>
+                  Home Hub
+                </button>
+              ) : null}
               <button type="button" className="btn ghost" onClick={onBack}>
-                Back to Dashboard
+                Mission Control
               </button>
               <button type="button" className="btn primary" onClick={() => void onRefresh()} disabled={loadingSessions}>
                 {loadingSessions ? 'Refreshing…' : 'Refresh'}
@@ -135,8 +162,8 @@ export function SessionsDashboard({
 
         <section className="panel session-detail-panel">
           <div className="panel-head">
-            <h2>Session Detail</h2>
-            <p>{loadingDetail ? 'Loading session details…' : 'Transcript and runtime details'}</p>
+            <h2>Interaction Detail</h2>
+            <p>{loadingDetail ? 'Loading interaction details…' : 'Transcript, runtime events, and system metadata'}</p>
           </div>
 
           {!selectedSession ? <p className="muted">Select a session to inspect.</p> : null}

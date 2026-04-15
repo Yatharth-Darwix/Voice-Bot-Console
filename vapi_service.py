@@ -15,12 +15,44 @@ logger = logging.getLogger(__name__)
 
 VAPI_BASE = "https://api.vapi.ai"
 CALL_TIMEOUT = 15.0
+DEFAULT_DIRECT_MODEL_PROVIDER = "openai"
+DEFAULT_DIRECT_MODEL_NAME = "gpt-5.2-chat-latest"
 
 
 class CallResult(TypedDict):
     call_id: str
     status: str
     phone_number: str
+
+
+def build_direct_assistant_payload(
+    *,
+    assistant_id: str,
+    phone_number: str,
+    system_prompt: str = "",
+    first_message: str = "",
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "assistantId": assistant_id,
+        "phoneNumberId": settings.vapi_phone_number_id,
+        "customer": {"number": phone_number},
+    }
+
+    assistant_overrides: dict[str, Any] = {}
+    if first_message.strip():
+        assistant_overrides["firstMessage"] = first_message.strip()
+        assistant_overrides["firstMessageMode"] = "assistant-speaks-first"
+    if system_prompt.strip():
+        assistant_overrides["model"] = {
+            "provider": DEFAULT_DIRECT_MODEL_PROVIDER,
+            "model": DEFAULT_DIRECT_MODEL_NAME,
+            "systemPrompt": system_prompt.strip(),
+        }
+
+    if assistant_overrides:
+        payload["assistantOverrides"] = assistant_overrides
+
+    return payload
 
 
 def _build_runtime_time_context() -> str:
@@ -165,6 +197,53 @@ async def create_outbound_call(
             data = resp.json()
             call_id = data.get("id", "unknown")
             logger.info("Vapi call created: %s → %s", call_id, _mask_phone(phone_number))
+            return CallResult(call_id=call_id, status="dialing", phone_number=phone_number)
+
+        except httpx.HTTPStatusError as exc:
+            logger.error("Vapi API error %s: %s", exc.response.status_code, exc.response.text)
+            raise RuntimeError(
+                f"Vapi returned {exc.response.status_code}: {exc.response.text}"
+            ) from exc
+
+        except httpx.RequestError as exc:
+            logger.error("Vapi request failed: %s", exc)
+            raise RuntimeError(f"Could not reach Vapi API: {exc}") from exc
+
+
+async def create_direct_assistant_call(
+    *,
+    assistant_id: str,
+    phone_number: str,
+    system_prompt: str = "",
+    first_message: str = "",
+    metadata: dict[str, Any] | None = None,
+) -> CallResult:
+    """Trigger an existing Vapi assistant with optional prompt overrides."""
+    payload = build_direct_assistant_payload(
+        assistant_id=assistant_id,
+        phone_number=phone_number,
+        system_prompt=system_prompt,
+        first_message=first_message,
+    )
+    if metadata:
+        payload["metadata"] = metadata
+
+    headers = {
+        "Authorization": f"Bearer {settings.vapi_api_key}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=CALL_TIMEOUT) as client:
+        try:
+            resp = await client.post(
+                f"{VAPI_BASE}/call",
+                json=payload,
+                headers=headers,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            call_id = data.get("id", "unknown")
+            logger.info("Direct Vapi call created: %s → %s", call_id, _mask_phone(phone_number))
             return CallResult(call_id=call_id, status="dialing", phone_number=phone_number)
 
         except httpx.HTTPStatusError as exc:
