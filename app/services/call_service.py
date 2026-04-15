@@ -68,7 +68,7 @@ async def pipeline_stream(
 
     try:
         yield (
-            f"data: {json.dumps({'phase': 'session', 'session_id': session_id, 'status': 'created'})}\\n\\n"
+            f"data: {json.dumps({'phase': 'session', 'session_id': session_id, 'status': 'created'})}\n\n"
         )
 
         webhook_url, webhook_error = await auto_configure_webhook()
@@ -83,7 +83,7 @@ async def pipeline_stream(
                         "session_id": session_id,
                     }
                 )
-                + "\\n\\n"
+                + "\n\n"
             )
         elif webhook_error:
             yield (
@@ -96,7 +96,7 @@ async def pipeline_stream(
                         "session_id": session_id,
                     }
                 )
-                + "\\n\\n"
+                + "\n\n"
             )
 
         async for chunk in stream_prompt_generation(
@@ -127,13 +127,13 @@ async def pipeline_stream(
 
         if not system_prompt:
             session_store.set_status(session_id, "failed")
-            yield f"data: {json.dumps({'error': 'No system prompt generated', 'session_id': session_id})}\\n\\n"
+            yield f"data: {json.dumps({'error': 'No system prompt generated', 'session_id': session_id})}\n\n"
             return
 
         session_store.attach_prompt(session_id, system_prompt, first_message)
         session_store.set_status(session_id, "prompt_ready")
 
-        yield f"data: {json.dumps({'phase': 'vapi', 'status': 'dialing', 'session_id': session_id})}\\n\\n"
+        yield f"data: {json.dumps({'phase': 'vapi', 'status': 'dialing', 'session_id': session_id})}\n\n"
 
         call_result = await create_outbound_call(
             phone_number=body.phone_number,
@@ -148,10 +148,10 @@ async def pipeline_stream(
         session_store.set_status(session_id, "dialing")
 
         yield (
-            f"data: {json.dumps({'phase': 'call_live', 'call_id': call_result['call_id'], 'status': 'dialing', 'session_id': session_id})}\\n\\n"
+            f"data: {json.dumps({'phase': 'call_live', 'call_id': call_result['call_id'], 'status': 'dialing', 'session_id': session_id})}\n\n"
         )
 
     except RuntimeError as exc:
         session_store.set_status(session_id, "failed")
         logger.error("Pipeline error: %s", exc)
-        yield f"data: {json.dumps({'error': str(exc), 'session_id': session_id})}\\n\\n"
+        yield f"data: {json.dumps({'error': str(exc), 'session_id': session_id})}\n\n"
