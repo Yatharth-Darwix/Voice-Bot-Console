@@ -277,6 +277,7 @@ async def direct_assistant_call(body: DirectAssistantCallRequest, request: Reque
             phone_number=body.phone_number,
             system_prompt=system_prompt,
             first_message=first_message,
+            voice_id=settings.elevenlabs_voice_id_female or settings.elevenlabs_voice_id,
             metadata={"session_id": session.session_id, "source": "local_playground"},
         )
 

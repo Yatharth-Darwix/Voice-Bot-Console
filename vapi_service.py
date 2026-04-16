@@ -31,6 +31,7 @@ def build_direct_assistant_payload(
     phone_number: str,
     system_prompt: str = "",
     first_message: str = "",
+    voice_id: str | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "assistantId": assistant_id,
@@ -47,6 +48,14 @@ def build_direct_assistant_payload(
             "provider": DEFAULT_DIRECT_MODEL_PROVIDER,
             "model": DEFAULT_DIRECT_MODEL_NAME,
             "systemPrompt": system_prompt.strip(),
+        }
+    if voice_id is None:
+        voice_id = settings.elevenlabs_voice_id_female or settings.elevenlabs_voice_id
+    if voice_id:
+        assistant_overrides["voice"] = {
+            "provider": "11labs",
+            "voiceId": voice_id,
+            "model": "eleven_turbo_v2_5",
         }
 
     if assistant_overrides:
@@ -216,6 +225,7 @@ async def create_direct_assistant_call(
     phone_number: str,
     system_prompt: str = "",
     first_message: str = "",
+    voice_id: str | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> CallResult:
     """Trigger an existing Vapi assistant with optional prompt overrides."""
@@ -224,6 +234,7 @@ async def create_direct_assistant_call(
         phone_number=phone_number,
         system_prompt=system_prompt,
         first_message=first_message,
+        voice_id=voice_id,
     )
     if metadata:
         payload["metadata"] = metadata
